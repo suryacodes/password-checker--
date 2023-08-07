@@ -138,3 +138,97 @@ const ICard = memo(() => {
     </Card>
   );
 });
+
+/** 
+ *  for fetch method
+
+const fetchPasswords = () => {
+  axios
+    .get(`${endpoint}/api/passwords`)
+    .then((response) => {
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+};
+
+ * for post method
+
+  axios
+  .post(`${endpoint}/api/passwords`, newPassword)
+  .then(() => {})
+  .catch((error) => {
+    console.error(error);
+});
+
+*/
+
+/** 
+
+// For server
+
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
+const app = express();
+
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost:27017/password_storage', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+const db = mongoose.connection;
+db.on('error', console.error('MongoDB connection error:'));
+db.once('open', () => {
+  console.log('Connected to MongoDB');
+});
+
+const passwordSchema = new mongoose.Schema({
+  password: String,
+});
+
+const PasswordModel = mongoose.model('Password', passwordSchema);
+
+app.use(bodyParser.json());
+
+// POST endpoint to save the password
+app.post('/api/password', (req, res) => {
+  const { password } = req.body;
+
+  if (!password) {
+    return res.status(400).json({ error: 'Password is required.' });
+  }
+
+  const newPassword = new PasswordModel({ password });
+
+  newPassword.save((err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Error saving password.' });
+    }
+
+    return res.status(201).json({ message: 'Password saved successfully.' });
+  });
+});
+
+// GET endpoint to retrieve all saved passwords as an array
+app.get('/api/passwords', (req, res) => {
+  PasswordModel.find({}, 'password', (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Error retrieving passwords.' });
+    }
+
+    const passwords = data.map((item) => item.password);
+    return res.json({ passwords });
+  });
+});
+
+const PORT = 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+*/
